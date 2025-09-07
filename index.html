@@ -5,65 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediSync - Healthcare Integration Platform</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
 <body>
     <div id="app">
         <!-- Login Screen -->
-        <!-- Login Screen -->
-<div id="login-screen" class="screen active">
-    <div class="login-container">
-        <div class="login-card">
-            <div class="login-header">
-                <div class="logo">
-                    <i data-lucide="heart"></i>
-                </div>
-                <h1>MediSync</h1>
-                <p>Healthcare Integration Platform</p>
-            </div>
-
-            <!-- Demo Warning Message -->
-            <div class="demo-warning">
-                <i data-lucide="info"></i>
-                <div class="warning-content">
-                    <strong>Demo Mode</strong>
-                    <p>Enter any ABHA ID and password to login and explore the platform</p>
-                </div>
-            </div>
-
-            <form class="login-form">
-                <div class="input-group">
-                    <label for="abha-id">ABHA ID</label>
-                    <input type="text" id="abha-id" placeholder="Enter any ABHA ID (demo)" required>
-                </div>
-
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <div class="password-input">
-                        <input type="password" id="password" placeholder="Enter any password (demo)" required>
-                        <button type="button" class="password-toggle">
-                            <i data-lucide="eye"></i>
-                        </button>
+        <div id="login-screen" class="screen active">
+            <div class="login-container">
+                <div class="login-card">
+                    <div class="login-header">
+                        <div class="logo">
+                            <i data-lucide="heart"></i>
+                        </div>
+                        <h1>MediSync</h1>
+                        <p>Healthcare Integration Platform</p>
+                    </div>
+                    
+                    <!-- Demo Warning Message -->
+                    <div class="demo-warning">
+                        <i data-lucide="info"></i>
+                        <div class="warning-content">
+                            <strong>Demo Mode</strong>
+                            <p>Enter any ABHA ID and password to login and explore the platform</p>
+                        </div>
+                    </div>
+                    
+                    <form class="login-form">
+                        <div class="input-group">
+                            <label for="abha-id">ABHA ID</label>
+                            <input type="text" id="abha-id" placeholder="Enter any ABHA ID (demo)" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="password">Password</label>
+                            <div class="password-input">
+                                <input type="password" id="password" placeholder="Enter any password (demo)" required>
+                                <button type="button" class="password-toggle">
+                                    <i data-lucide="eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="login-btn">Sign In Securely</button>
+                        
+                        <div class="divider">
+                            <span>Or continue with</span>
+                        </div>
+                        
+                        <button type="button" class="oauth-btn">OAuth Login</button>
+                    </form>
+                    
+                    <div class="security-info">
+                        <i data-lucide="shield"></i>
+                        <span>Secured with end-to-end encryption</span>
                     </div>
                 </div>
-
-                <button type="submit" class="login-btn">Sign In Securely</button>
-
-                <div class="divider">
-                    <span>Or continue with</span>
-                </div>
-
-                <button type="button" class="oauth-btn">OAuth Login</button>
-            </form>
-
-            <div class="security-info">
-                <i data-lucide="shield"></i>
-                <span>Secured with end-to-end encryption</span>
             </div>
         </div>
-    </div>
-</div>
-
 
         <!-- Main Application -->
         <div id="main-app" class="screen">
@@ -461,6 +458,16 @@
         </div>
     </div>
 
+    <!-- Scripts -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="script.js"></script>
+    <script>
+        // Initialize icons after everything loads
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
 </body>
 </html>
