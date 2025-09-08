@@ -1,187 +1,294 @@
-// MediSync - Healthcare Integration Platform JavaScript
-
-class MediSync {
+class MediSyncApp {
     constructor() {
         this.currentScreen = 'login';
-        this.currentContentScreen = 'dashboard';
         this.sidebarCollapsed = false;
+        this.isMobile = window.innerWidth < 1024;
+        this.sidebarOpen = false;
+        
         this.init();
     }
 
     init() {
-        this.bindEvents();
-        this.initializeLogin();
-        this.initializeSidebar();
-        this.initializeUpload();
-        this.initializeTranslator();
-        this.initializeSettings();
-        this.loadDemoData();
+        this.setupEventListeners();
+        this.initializeIcons();
+        this.handleResponsive();
+        
+        // Show initial screen
+        this.showScreen(this.currentScreen);
     }
 
-    bindEvents() {
+    setupEventListeners() {
         // Login form
         const loginForm = document.querySelector('.login-form');
         if (loginForm) {
-            loginForm.addEventListener('submit', (e) => this.handleLogin(e));
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleLogin();
+            });
         }
 
         // Password toggle
         const passwordToggle = document.querySelector('.password-toggle');
-        if (passwordToggle) {
-            passwordToggle.addEventListener('click', () => this.togglePassword());
+        const passwordInput = document.getElementById('password');
+        if (passwordToggle && passwordInput) {
+            passwordToggle.addEventListener('click', () => {
+                this.togglePassword(passwordInput, passwordToggle);
+            });
         }
 
-        // OAuth login
-        const oauthBtn = document.querySelector('.oauth-btn');
-        if (oauthBtn) {
-            oauthBtn.addEventListener('click', () => this.handleOAuthLogin());
+        // Sidebar toggle
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                this.toggleSidebar();
+            });
         }
 
-        // Sidebar navigation
+        // Navigation items
         const navItems = document.querySelectorAll('.nav-item');
         navItems.forEach(item => {
-            item.addEventListener('click', (e) => this.handleNavigation(e));
+            item.addEventListener('click', () => {
+                const screen = item.dataset.screen;
+                if (screen) {
+                    this.navigateToScreen(screen);
+                }
+            });
         });
 
         // Quick action buttons
         const actionBtns = document.querySelectorAll('.action-btn');
         actionBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => this.handleNavigation(e));
+            btn.addEventListener('click', () => {
+                const screen = btn.dataset.screen;
+                if (screen) {
+                    this.navigateToScreen(screen);
+                }
+            });
         });
 
-        // Sidebar toggle
-        const sidebarToggle = document.getElementById('sidebar-toggle');
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => this.toggleSidebar());
-        }
-
-        // Logout
+        // Logout button
         const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => this.handleLogout());
+            logoutBtn.addEventListener('click', () => {
+                this.handleLogout();
+            });
         }
 
-        // Translator
-        const translateBtn = document.querySelector('.translate-btn');
-        if (translateBtn) {
-            translateBtn.addEventListener('click', () => this.performTranslation());
+        // File upload
+        const uploadZone = document.getElementById('upload-zone');
+        const fileInput = document.getElementById('file-input');
+        if (uploadZone && fileInput) {
+            uploadZone.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            uploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadZone.style.borderColor = 'var(--primary-blue)';
+                uploadZone.style.backgroundColor = '#fafbff';
+            });
+
+            uploadZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                uploadZone.style.borderColor = 'var(--gray-300)';
+                uploadZone.style.backgroundColor = 'transparent';
+            });
+
+            uploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadZone.style.borderColor = 'var(--gray-300)';
+                uploadZone.style.backgroundColor = 'transparent';
+                
+                const files = Array.from(e.dataTransfer.files);
+                this.handleFileUpload(files);
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                this.handleFileUpload(files);
+            });
         }
 
-        const saveBtn = document.querySelector('.save-btn');
-        if (saveBtn) {
-            saveBtn.addEventListener('click', () => this.saveTranslation());
-        }
-
-        // Settings toggles
+        // Toggle switches
         const toggleSwitches = document.querySelectorAll('.toggle-switch');
         toggleSwitches.forEach(toggle => {
-            toggle.addEventListener('click', () => this.toggleSetting(toggle));
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('active');
+            });
         });
 
-        // Settings form
-        const updateBtn = document.querySelector('.update-btn');
-        if (updateBtn) {
-            updateBtn.addEventListener('click', () => this.updateProfile());
+        // Translation functionality
+        const translateBtn = document.querySelector('.translate-btn');
+        if (translateBtn) {
+            translateBtn.addEventListener('click', () => {
+                this.handleTranslation();
+            });
         }
 
-        // Danger zone buttons
-        const exportBtn = document.querySelector('.danger-btn.secondary');
-        if (exportBtn) {
-            exportBtn.addEventListener('click', () => this.exportData());
-        }
-
-        const deleteBtn = document.querySelector('.danger-btn.primary');
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', () => this.deleteAccount());
-        }
-
-        // Search functionality
-        const searchInput = document.querySelector('.search-input input');
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => this.handleSearch(e));
-        }
-
-        // Responsive sidebar for mobile
-        if (window.innerWidth <= 1024) {
-            this.setupMobileSidebar();
-        }
-
+        // Window resize
         window.addEventListener('resize', () => {
-            if (window.innerWidth <= 1024) {
-                this.setupMobileSidebar();
+            this.handleResponsive();
+        });
+
+        // Click outside sidebar on mobile
+        document.addEventListener('click', (e) => {
+            if (this.isMobile && this.sidebarOpen) {
+                const sidebar = document.getElementById('sidebar');
+                const sidebarToggle = document.getElementById('sidebar-toggle');
+                
+                if (sidebar && !sidebar.contains(e.target) && 
+                    sidebarToggle && !sidebarToggle.contains(e.target)) {
+                    this.closeMobileSidebar();
+                }
             }
         });
     }
 
-    initializeLogin() {
-        this.showScreen('login');
-    }
-
-    initializeSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        if (window.innerWidth <= 1024) {
-            sidebar.classList.add('collapsed');
-            this.sidebarCollapsed = true;
+    initializeIcons() {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
         }
     }
 
-    setupMobileSidebar() {
+    handleResponsive() {
+        this.isMobile = window.innerWidth < 1024;
         const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('main-content');
         
-        // Add overlay for mobile
-        if (!document.querySelector('.sidebar-overlay')) {
-            const overlay = document.createElement('div');
-            overlay.className = 'sidebar-overlay';
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 999;
-                display: none;
-            `;
-            document.body.appendChild(overlay);
-            
-            overlay.addEventListener('click', () => {
-                this.closeMobileSidebar();
-            });
+        if (this.isMobile) {
+            if (sidebar) {
+                sidebar.classList.remove('collapsed');
+                if (!this.sidebarOpen) {
+                    sidebar.style.left = '-256px';
+                }
+            }
+        } else {
+            if (sidebar) {
+                sidebar.style.left = '0';
+                if (this.sidebarCollapsed) {
+                    sidebar.classList.add('collapsed');
+                }
+            }
+            this.sidebarOpen = false;
         }
+    }
+
+    showScreen(screenName) {
+        // Hide all screens
+        const allScreens = document.querySelectorAll('.screen');
+        const allContentScreens = document.querySelectorAll('.content-screen');
+        
+        allScreens.forEach(screen => screen.classList.remove('active'));
+        allContentScreens.forEach(screen => screen.classList.remove('active'));
+
+        if (screenName === 'login') {
+            const loginScreen = document.getElementById('login-screen');
+            if (loginScreen) {
+                loginScreen.classList.add('active');
+            }
+        } else {
+            const mainApp = document.getElementById('main-app');
+            const contentScreen = document.getElementById(`${screenName}-screen`);
+            
+            if (mainApp) {
+                mainApp.classList.add('active');
+            }
+            if (contentScreen) {
+                contentScreen.classList.add('active');
+                contentScreen.classList.add('fade-in');
+            }
+        }
+
+        this.currentScreen = screenName;
+        
+        // Reinitialize icons after screen change
+        setTimeout(() => {
+            this.initializeIcons();
+        }, 100);
+    }
+
+    navigateToScreen(screenName) {
+        this.showScreen(screenName);
+        this.updateActiveNavItem(screenName);
+        
+        if (this.isMobile) {
+            this.closeMobileSidebar();
+        }
+    }
+
+    updateActiveNavItem(screenName) {
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.dataset.screen === screenName) {
+                item.classList.add('active');
+            }
+        });
     }
 
     toggleSidebar() {
+        if (this.isMobile) {
+            this.toggleMobileSidebar();
+        } else {
+            this.toggleDesktopSidebar();
+        }
+    }
+
+    toggleDesktopSidebar() {
+        this.sidebarCollapsed = !this.sidebarCollapsed;
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        
+        if (sidebar) {
+            sidebar.classList.toggle('collapsed', this.sidebarCollapsed);
+        }
+        
+        if (sidebarToggle) {
+            const icon = sidebarToggle.querySelector('i');
+            if (icon) {
+                icon.setAttribute('data-lucide', this.sidebarCollapsed ? 'menu' : 'x');
+                this.initializeIcons();
+            }
+        }
+    }
+
+    toggleMobileSidebar() {
+        this.sidebarOpen = !this.sidebarOpen;
         const sidebar = document.getElementById('sidebar');
         
-        if (window.innerWidth <= 1024) {
-            // Mobile behavior
-            const overlay = document.querySelector('.sidebar-overlay');
-            if (sidebar.classList.contains('open')) {
-                this.closeMobileSidebar();
-            } else {
+        if (sidebar) {
+            if (this.sidebarOpen) {
                 sidebar.classList.add('open');
-                overlay.style.display = 'block';
+                sidebar.style.left = '0';
+            } else {
+                sidebar.classList.remove('open');
+                sidebar.style.left = '-256px';
             }
-        } else {
-            // Desktop behavior
-            sidebar.classList.toggle('collapsed');
-            this.sidebarCollapsed = !this.sidebarCollapsed;
         }
     }
 
     closeMobileSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.querySelector('.sidebar-overlay');
-        sidebar.classList.remove('open');
-        if (overlay) {
-            overlay.style.display = 'none';
+        if (this.isMobile && this.sidebarOpen) {
+            this.sidebarOpen = false;
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.remove('open');
+                sidebar.style.left = '-256px';
+            }
         }
     }
 
-    handleLogin(e) {
-        e.preventDefault();
+    togglePassword(input, toggle) {
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
         
+        const icon = toggle.querySelector('i');
+        if (icon) {
+            icon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+            this.initializeIcons();
+        }
+    }
+
+    handleLogin() {
         const abhaId = document.getElementById('abha-id').value;
         const password = document.getElementById('password').value;
         
@@ -190,121 +297,180 @@ class MediSync {
             return;
         }
 
-        // Show loading state
-        const loginBtn = document.querySelector('.login-btn');
-        const originalText = loginBtn.textContent;
-        loginBtn.textContent = 'Signing In...';
-        loginBtn.disabled = true;
-
         // Simulate login process
+        const loginBtn = document.querySelector('.login-btn');
+        if (loginBtn) {
+            loginBtn.textContent = 'Signing In...';
+            loginBtn.disabled = true;
+        }
+
         setTimeout(() => {
-            this.showScreen('main-app');
-            this.showContentScreen('dashboard');
-            this.showNotification('Welcome back, Dr. Sharma!', 'success');
+            this.showScreen('dashboard');
+            this.updateActiveNavItem('dashboard');
             
-            // Reset button
-            loginBtn.textContent = originalText;
-            loginBtn.disabled = false;
+            if (loginBtn) {
+                loginBtn.textContent = 'Sign In Securely';
+                loginBtn.disabled = false;
+            }
         }, 1500);
-    }
-
-    handleOAuthLogin() {
-        this.showNotification('OAuth login would redirect to authentication provider', 'info');
-    }
-
-    togglePassword() {
-        const passwordInput = document.getElementById('password');
-        const toggleIcon = document.querySelector('.password-toggle i');
-        
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            toggleIcon.setAttribute('data-lucide', 'eye-off');
-        } else {
-            passwordInput.type = 'password';
-            toggleIcon.setAttribute('data-lucide', 'eye');
-        }
-        
-        // Reinitialize lucide icons
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-    }
-
-    handleNavigation(e) {
-        const target = e.currentTarget;
-        const screen = target.getAttribute('data-screen');
-        
-        if (screen) {
-            // Update active nav item
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            if (target.classList.contains('nav-item')) {
-                target.classList.add('active');
-            } else {
-                // For action buttons, find corresponding nav item
-                const navItem = document.querySelector(`.nav-item[data-screen="${screen}"]`);
-                if (navItem) {
-                    navItem.classList.add('active');
-                }
-            }
-            
-            this.showContentScreen(screen);
-            
-            // Close mobile sidebar if open
-            if (window.innerWidth <= 1024) {
-                this.closeMobileSidebar();
-            }
-        }
     }
 
     handleLogout() {
         if (confirm('Are you sure you want to logout?')) {
             this.showScreen('login');
-            this.showNotification('You have been logged out successfully', 'info');
+            this.resetForm();
+        }
+    }
+
+    resetForm() {
+        const form = document.querySelector('.login-form');
+        if (form) {
+            form.reset();
+        }
+    }
+
+    handleFileUpload(files) {
+        if (files.length === 0) return;
+
+        files.forEach(file => {
+            if (this.validateFile(file)) {
+                this.uploadFile(file);
+            } else {
+                this.showNotification(`Invalid file type: ${file.name}`, 'error');
+            }
+        });
+    }
+
+    validateFile(file) {
+        const allowedTypes = [
+            'text/csv',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        ];
+        return allowedTypes.includes(file.type);
+    }
+
+    uploadFile(file) {
+        // Simulate file upload
+        this.showNotification(`Uploading ${file.name}...`, 'info');
+        
+        setTimeout(() => {
+            this.showNotification(`Successfully uploaded ${file.name}`, 'success');
+            this.addToUploadHistory(file);
+        }, 2000);
+    }
+
+    addToUploadHistory(file) {
+        // Add file to upload history (simplified)
+        console.log('File uploaded:', file.name, file.size);
+    }
+
+    handleTranslation() {
+        const textarea = document.querySelector('.translator-input textarea');
+        if (!textarea || !textarea.value.trim()) {
+            this.showNotification('Please enter text to translate', 'error');
+            return;
+        }
+
+        const translateBtn = document.querySelector('.translate-btn');
+        if (translateBtn) {
+            translateBtn.textContent = 'Translating...';
+            translateBtn.disabled = true;
+        }
+
+        // Simulate translation process
+        setTimeout(() => {
+            this.showNotification('Translation completed successfully', 'success');
             
-            // Clear form fields
-            document.getElementById('abha-id').value = '';
-            document.getElementById('password').value = '';
-        }
+            if (translateBtn) {
+                translateBtn.textContent = 'Translate';
+                translateBtn.disabled = false;
+            }
+        }, 2000);
     }
 
-    showScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(screen => {
-            screen.classList.remove('active');
+    showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        
+        // Style the notification
+        Object.assign(notification.style, {
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            color: 'white',
+            fontWeight: '500',
+            zIndex: '9999',
+            maxWidth: '300px',
+            wordWrap: 'break-word',
+            transform: 'translateX(100%)',
+            transition: 'transform 0.3s ease'
         });
-        
-        const targetScreen = document.getElementById(screenId);
-        if (targetScreen) {
-            targetScreen.classList.add('active');
-        }
-        
-        this.currentScreen = screenId;
+
+        // Set background color based on type
+        const colors = {
+            success: '#10b981',
+            error: '#ef4444',
+            warning: '#f59e0b',
+            info: '#3b82f6'
+        };
+        notification.style.backgroundColor = colors[type] || colors.info;
+
+        // Add to DOM
+        document.body.appendChild(notification);
+
+        // Animate in
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
     }
 
-    showContentScreen(screenId) {
-        document.querySelectorAll('.content-screen').forEach(screen => {
-            screen.classList.remove('active');
+    // Utility methods
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    formatDate(date) {
+        return new Date(date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
         });
-        
-        const targetScreen = document.getElementById(`${screenId}-screen`);
-        if (targetScreen) {
-            targetScreen.classList.add('active');
-            targetScreen.classList.add('fade-in');
-        }
-        
-        this.currentContentScreen = screenId;
     }
+}
 
-    initializeUpload() {
-        const uploadZone = document.getElementById('upload-zone');
-        const fileInput = document.getElementById('file-input');
-        const uploadBtn = document.querySelector('.upload-btn');
-        
-        if (uploadZone && fileInput) {
-            // Drag and drop
-            uploadZone.addEventListener('dragover', (e) => {
+// Initialize the application when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const app = new MediSyncApp();
+    
+    // Make app globally available for debugging
+    window.MediSync = app;
+});
+
+// Handle any uncaught errors gracefully
+window.addEventListener('error', (event) => {
+    console.error('Application error:', event.error);
+});           uploadZone.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 uploadZone.style.borderColor = 'var(--primary-blue)';
                 uploadZone.style.backgroundColor = '#fafbff';
