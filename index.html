@@ -20,8 +20,6 @@
                     <h1>MediSync</h1>
                     <p>Healthcare Integration Platform</p>
                 </div>
-
-                <!-- Demo Warning Message -->
                 <div class="demo-warning">
                     <i data-lucide="info"></i>
                     <div class="warning-content">
@@ -29,7 +27,6 @@
                         <p>Enter any ABHA ID and password to login and explore the platform</p>
                     </div>
                 </div>
-
                 <form class="login-form">
                     <div class="input-group">
                         <label for="abha-id">ABHA ID</label>
@@ -45,14 +42,11 @@
                         </div>
                     </div>
                     <button type="submit" class="login-btn">Sign In Securely</button>
-
                     <div class="divider">
                         <span>Or continue with</span>
                     </div>
-
                     <button type="button" class="oauth-btn">OAuth Login</button>
                 </form>
-
                 <div class="security-info">
                     <i data-lucide="shield"></i>
                     <span>Secured with end-to-end encryption</span>
@@ -61,7 +55,7 @@
         </div>
     </div>
 
-    <!-- Main Application (hidden by default) -->
+    <!-- Main Application -->
     <div id="main-app" class="screen">
         <!-- Sidebar -->
         <nav class="sidebar" id="sidebar">
@@ -167,7 +161,6 @@
                                 <input type="text" placeholder="Search symptoms, diagnoses, or patient records..."/>
                             </div>
                         </div>
-
                         <div class="recent-translations">
                             <h3>Recent Translations</h3>
                             <div class="translation-list">
@@ -194,7 +187,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="side-panel">
                         <div class="quick-actions">
                             <h3>Quick Actions</h3>
@@ -228,17 +220,188 @@
                 </div>
             </div>
 
-            <!-- Additional screens like translator, upload, analytics, and settings can be added below -->
-        </main>
-    </div>
-</div>
+            <!-- Code Translator Screen -->
+            <div id="translator-screen" class="content-screen">
+                <div class="page-header">
+                    <h1>Code Translator</h1>
+                    <p>Convert NAMASTE codes to ICD-11 standards in real-time</p>
+                </div>
+                <div class="translator-layout">
+                    <div class="translator-input">
+                        <div class="translator-header">
+                            <div class="status-dot orange"></div>
+                            <h3>NAMASTE Terminology</h3>
+                        </div>
+                        <textarea placeholder="Enter symptoms or diagnosis in NAMASTE terminology...">Jwara (Fever) with Kasa (Cough)</textarea>
+                        <div class="translator-footer">
+                            <span class="confidence">Confidence: High</span>
+                            <button class="translate-btn">Translate</button>
+                        </div>
+                    </div>
+                    <div class="translator-output">
+                        <div class="translator-header">
+                            <div class="status-dot green"></div>
+                            <h3>ICD-11 Equivalent</h3>
+                        </div>
+                        <div class="output-content">
+                            <div class="code-match">
+                                <h4>MD90 - Fever, unspecified</h4>
+                                <p>Primary match for "Jwara (Fever)"</p>
+                            </div>
+                            <div class="code-match">
+                                <h4>MD12 - Cough</h4>
+                                <p>Primary match for "Kasa (Cough)"</p>
+                            </div>
+                        </div>
+                        <div class="translator-footer">
+                            <span class="status-complete"><i data-lucide="check-circle"></i> Translation Complete</span>
+                            <button class="save-btn">Save Translation</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<script src="script.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        lucide.createIcons();
-    });
-</script>
-</body>
-  </html>
-  
+            <!-- Patient Record Upload Screen -->
+            <div id="upload-screen" class="content-screen">
+                <div class="page-header">
+                    <h1>Patient Record Upload</h1>
+                    <p>Import and sync patient data with EMR systems</p>
+                </div>
+                <div class="upload-section">
+                    <div class="upload-area">
+                        <div class="upload-zone" id="upload-zone">
+                            <i data-lucide="upload"></i>
+                            <h3>Upload Patient Records</h3>
+                            <p>Drag and drop CSV, Excel, or EMR files here</p>
+                            <button class="upload-btn">Choose Files</button>
+                            <input type="file" id="file-input" multiple accept=".csv,.xlsx,.xls" hidden/>
+                            <p class="file-info">Supported formats: CSV, XLSX, XLS, HL7, FHIR</p>
+                        </div>
+                    </div>
+                    <div class="upload-history">
+                        <h3>Recent Uploads</h3>
+                        <div class="upload-item">
+                            <div class="file-info-section">
+                                <i data-lucide="file-text"></i>
+                                <div class="file-details">
+                                    <h4>patient_records_2024.csv</h4>
+                                    <p>2.4 MB • 1,247 records</p>
+                                </div>
+                            </div>
+                            <div class="upload-status">
+                                <div class="status-badge active">Synced</div>
+                                <span class="upload-time">2 hours ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Screen -->
+            <div id="analytics-screen" class="content-screen">
+                <div class="page-header">
+                    <h1>Analytics & Reports</h1>
+                    <p>Insights into AYUSH-to-ICD mapping and healthcare trends</p>
+                </div>
+                <div class="analytics-layout">
+                    <div class="chart-card">
+                        <h3>Most Common Diagnoses</h3>
+                        <div class="chart-content">
+                            <div class="chart-item">
+                                <div class="chart-label">
+                                    <span>Jwara (Fever)</span>
+                                    <span>1247 cases</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 80%"></div>
+                                </div>
+                            </div>
+                            <div class="chart-item">
+                                <div class="chart-label">
+                                    <span>Kasa (Cough)</span>
+                                    <span>856 cases</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 60%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="success-rate-card">
+                        <h3>Translation Success Rate</h3>
+                        <div class="circular-progress">
+                            <div class="progress-ring">
+                                <span class="progress-text">98.5%</span>
+                            </div>
+                        </div>
+                        <div class="success-stats">
+                            <div class="stat-item">
+                                <span class="number success">4,247</span>
+                                <span class="label">Successful</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="number failed">65</span>
+                                <span class="label">Failed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Screen -->
+            <div id="settings-screen" class="content-screen">
+                <div class="page-header">
+                    <h1>Settings</h1>
+                    <p>Configure your platform preferences and security settings</p>
+                </div>
+                <div class="settings-layout">
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <i data-lucide="shield"></i>
+                            <h3>Security & Privacy</h3>
+                        </div>
+                        <div class="settings-items">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Two-Factor Authentication</h4>
+                                    <p>Add an extra layer of security</p>
+                                </div>
+                                <div class="toggle-switch active">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Data Encryption</h4>
+                                    <p>End-to-end encryption enabled</p>
+                                </div>
+                                <div class="status-badge active">Active</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <div class="section-header">
+                            <i data-lucide="user"></i>
+                            <h3>Account Settings</h3>
+                        </div>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label for="display-name">Display Name</label>
+                                <input type="text" id="display-name" value="Dr. Rajesh Sharma"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="hospital">Hospital/Clinic</label>
+                                <input type="text" id="hospital" value="AIIMS New Delhi"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="specialization">Specialization</label>
+                                <select id="specialization">
+                                    <option>Internal Medicine</option>
+                                    <option>Ayurveda</option>
+                                    <option>Homeopathy</option>
+                                    <option>Unani</option>
+                                    <option>Siddha</option>
+                                </select>
+                            </div>
+                            <button
