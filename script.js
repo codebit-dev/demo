@@ -1,40 +1,227 @@
-// MediSync - Healthcare Integration Platform JavaScript
-
-class MediSync {
+class MediSyncApp {
     constructor() {
         this.currentScreen = 'login';
-        this.currentContentScreen = 'dashboard';
         this.sidebarCollapsed = false;
+        this.isMobile = window.innerWidth < 1024;
+        this.sidebarOpen = false;
+        
         this.init();
     }
 
     init() {
-        this.bindEvents();
-        this.initializeLogin();
-        this.initializeSidebar();
-        this.initializeUpload();
-        this.initializeTranslator();
-        this.initializeSettings();
-        this.loadDemoData();
+        this.setupEventListeners();
+        this.initializeIcons();
+        this.handleResponsive();
+        this.showScreen(this.currentScreen);
     }
 
-    bindEvents() {
-        // Login form
+    setupEventListeners() {
         const loginForm = document.querySelector('.login-form');
         if (loginForm) {
-            loginForm.addEventListener('submit', (e) => this.handleLogin(e));
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleLogin();
+            });
         }
 
-        // Password toggle
         const passwordToggle = document.querySelector('.password-toggle');
-        if (passwordToggle) {
-            passwordToggle.addEventListener('click', () => this.togglePassword());
+        const passwordInput = document.getElementById('password');
+        if (passwordToggle && passwordInput) {
+            passwordToggle.addEventListener('click', () => {
+                this.togglePassword(passwordInput, passwordToggle);
+            });
         }
 
-        // OAuth login
-        const oauthBtn = document.querySelector('.oauth-btn');
-        if (oauthBtn) {
-            oauthBtn.addEventListener('click', () => this.handleOAuthLogin());
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                this.toggleSidebar();
+            });
+        }
+
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const screen = item.dataset.screen;
+                if (screen) {
+                    this.navigateToScreen(screen);
+                }
+            });
+        });
+
+        const actionBtns = document.querySelectorAll('.action-btn');
+        actionBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const screen = btn.dataset.screen;
+                if (screen) {
+                    this.navigateToScreen(screen);
+                }
+            });
+        });
+
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                this.handleLogout();
+            });
+        }
+
+        window.addEventListener('resize', () => {
+            this.handleResponsive();
+        });
+    }
+
+    initializeIcons() {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    }
+
+    handleResponsive() {
+        this.isMobile = window.innerWidth < 1024;
+        const sidebar = document.getElementById('sidebar');
+        
+        if (this.isMobile) {
+            if (sidebar) {
+                sidebar.classList.remove('collapsed');
+                if (!this.sidebarOpen) {
+                    sidebar.style.left = '-256px';
+                }
+            }
+        } else {
+            if (sidebar) {
+                sidebar.style.left = '0';
+                if (this.sidebarCollapsed) {
+                    sidebar.classList.add('collapsed');
+                }
+            }
+            this.sidebarOpen = false;
+        }
+    }
+
+    showScreen(screenName) {
+        const allScreens = document.querySelectorAll('.screen');
+        const allContentScreens = document.querySelectorAll('.content-screen');
+        
+        allScreens.forEach(screen => screen.classList.remove('active'));
+        allContentScreens.forEach(screen => screen.classList.remove('active'));
+
+        if (screenName === 'login') {
+            const loginScreen = document.getElementById('login-screen');
+            if (loginScreen) loginScreen.classList.add('active');
+        } else {
+            const mainApp = document.getElementById('main-app');
+            const contentScreen = document.getElementById(`${screenName}-screen`);
+            if (mainApp) mainApp.classList.add('active');
+            if (contentScreen) contentScreen.classList.add('active');
+        }
+
+        this.currentScreen = screenName;
+        setTimeout(() => this.initializeIcons(), 100);
+    }
+
+    navigateToScreen(screenName) {
+        this.showScreen(screenName);
+        this.updateActiveNavItem(screenName);
+        if (this.isMobile) this.closeMobileSidebar();
+    }
+
+    updateActiveNavItem(screenName) {
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.dataset.screen === screenName) {
+                item.classList.add('active');
+            }
+        });
+    }
+
+    handleLogin() {
+        const abhaId = document.getElementById('abha-id').value;
+        const password = document.getElementById('password').value;
+        
+        if (!abhaId || !password) {
+            this.showNotification('Please fill in all fields', 'error');
+            return;
+        }
+
+        const loginBtn = document.querySelector('.login-btn');
+        if (loginBtn) {
+            loginBtn.textContent = 'Signing In...';
+            loginBtn.disabled = true;
+        }
+
+        setTimeout(() => {
+            // ✅ Ensure login hides and dashboard shows
+            this.showScreen('dashboard');
+            this.updateActiveNavItem('dashboard');
+
+            if (loginBtn) {
+                loginBtn.textContent = 'Sign In Securely';
+                loginBtn.disabled = false;
+            }
+        }, 1200);
+    }
+
+    handleLogout() {
+        if (confirm('Are you sure you want to logout?')) {
+            this.showScreen('login');
+            this.resetForm();
+        }
+    }
+
+    resetForm() {
+        const form = document.querySelector('.login-form');
+        if (form) form.reset();
+    }
+
+    togglePassword(input, toggle) {
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        const icon = toggle.querySelector('i');
+        if (icon) {
+            icon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+            this.initializeIcons();
+        }
+    }
+
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        Object.assign(notification.style, {
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            color: 'white',
+            fontWeight: '500',
+            zIndex: '9999',
+            maxWidth: '300px',
+            wordWrap: 'break-word',
+            transform: 'translateX(100%)',
+            transition: 'transform 0.3s ease'
+        });
+        const colors = {
+            success: '#10b981',
+            error: '#ef4444',
+            warning: '#f59e0b',
+            info: '#3b82f6'
+        };
+        notification.style.backgroundColor = colors[type] || colors.info;
+        document.body.appendChild(notification);
+        setTimeout(() => { notification.style.transform = 'translateX(0)'; }, 100);
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => { notification.remove(); }, 300);
+        }, 3000);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.MediSync = new MediSyncApp();
+});            oauthBtn.addEventListener('click', () => this.handleOAuthLogin());
         }
 
         // Sidebar navigation
