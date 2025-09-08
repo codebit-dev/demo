@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediSync - Healthcare Integration Platform</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
 <body>
     <div id="app">
@@ -19,7 +20,6 @@
                         <h1>MediSync</h1>
                         <p>Healthcare Integration Platform</p>
                     </div>
-                    
                     <!-- Demo Warning Message -->
                     <div class="demo-warning">
                         <i data-lucide="info"></i>
@@ -28,13 +28,11 @@
                             <p>Enter any ABHA ID and password to login and explore the platform</p>
                         </div>
                     </div>
-                    
                     <form class="login-form">
                         <div class="input-group">
                             <label for="abha-id">ABHA ID</label>
                             <input type="text" id="abha-id" placeholder="Enter any ABHA ID (demo)" required>
                         </div>
-                        
                         <div class="input-group">
                             <label for="password">Password</label>
                             <div class="password-input">
@@ -44,16 +42,12 @@
                                 </button>
                             </div>
                         </div>
-                        
                         <button type="submit" class="login-btn">Sign In Securely</button>
-                        
                         <div class="divider">
                             <span>Or continue with</span>
                         </div>
-                        
                         <button type="button" class="oauth-btn">OAuth Login</button>
                     </form>
-                    
                     <div class="security-info">
                         <i data-lucide="shield"></i>
                         <span>Secured with end-to-end encryption</span>
@@ -62,7 +56,7 @@
             </div>
         </div>
 
-        <!-- Main Application -->
+        <!-- Main Application (Hidden by default) -->
         <div id="main-app" class="screen">
             <!-- Sidebar -->
             <nav class="sidebar" id="sidebar">
@@ -77,7 +71,6 @@
                         <i data-lucide="menu"></i>
                     </button>
                 </div>
-
                 <div class="nav-menu">
                     <button class="nav-item active" data-screen="dashboard">
                         <i data-lucide="bar-chart-3"></i>
@@ -100,7 +93,6 @@
                         <span>Settings</span>
                     </button>
                 </div>
-
                 <div class="sidebar-footer">
                     <button class="logout-btn" id="logout-btn">
                         <i data-lucide="log-out"></i>
@@ -108,7 +100,6 @@
                     </button>
                 </div>
             </nav>
-
             <!-- Main Content -->
             <main class="main-content" id="main-content">
                 <!-- Dashboard Screen -->
@@ -117,7 +108,6 @@
                         <h1>Welcome back, Dr. Sharma</h1>
                         <p>Here's what's happening with your patients today</p>
                     </div>
-
                     <div class="stats-grid">
                         <div class="stat-card blue">
                             <div class="stat-info">
@@ -129,7 +119,6 @@
                                 <i data-lucide="users"></i>
                             </div>
                         </div>
-
                         <div class="stat-card green">
                             <div class="stat-info">
                                 <h3>Codes Translated</h3>
@@ -140,7 +129,6 @@
                                 <i data-lucide="refresh-cw"></i>
                             </div>
                         </div>
-
                         <div class="stat-card purple">
                             <div class="stat-info">
                                 <h3>Active Records</h3>
@@ -151,7 +139,6 @@
                                 <i data-lucide="file-text"></i>
                             </div>
                         </div>
-
                         <div class="stat-card emerald">
                             <div class="stat-info">
                                 <h3>Success Rate</h3>
@@ -163,7 +150,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="dashboard-content">
                         <div class="main-panel">
                             <div class="search-card">
@@ -173,7 +159,6 @@
                                     <input type="text" placeholder="Search symptoms, diagnoses, or patient records...">
                                 </div>
                             </div>
-
                             <div class="recent-translations">
                                 <h3>Recent Translations</h3>
                                 <div class="translation-list">
@@ -200,7 +185,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="side-panel">
                             <div class="quick-actions">
                                 <h3>Quick Actions</h3>
@@ -209,6 +193,43 @@
                                         <i data-lucide="refresh-cw"></i>
                                         <span>Translate Code</span>
                                         <i data-lucide="arrow-right"></i>
+                                    </button>
+                                    <button class="action-btn" data-screen="upload">
+                                        <i data-lucide="upload"></i>
+                                        <span>Upload Records</span>
+                                        <i data-lucide="arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="system-status">
+                                <h3>System Status</h3>
+                                <div class="status-items">
+                                    <div class="status-item">
+                                        <span>ABHA Integration</span>
+                                        <div class="status-badge active">Active</div>
+                                    </div>
+                                    <div class="status-item">
+                                        <span>EMR Sync</span>
+                                        <div class="status-badge active">Active</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- (Other screens trimmed for brevity, but place them here as needed: Translator, Upload, Analytics, Settings, etc.) -->
+            </main>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
+                       <i data-lucide="arrow-right"></i>
                                     </button>
                                     <button class="action-btn" data-screen="upload">
                                         <i data-lucide="upload"></i>
